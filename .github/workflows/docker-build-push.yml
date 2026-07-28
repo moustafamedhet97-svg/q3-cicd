@@ -43,5 +43,5 @@ jobs:
       - name: Deploy Application
         run: |
           echo "Deploying image to production..."
-            --image ${{ secrets.DOCKER_USERNAME }}/ghaymah-api:${{ github.sha }} \
-            --environment production
+          echo "image ${{ secrets.DOCKER_USERNAME }}/ghaymah-api:${{ github.sha }}"
+          echo "environment production"
