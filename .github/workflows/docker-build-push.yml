@@ -40,10 +40,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install ghaymah CLI
-        run: |
-          curl -fsSL https://cli.ghaymah.io/install.sh | bash
-
       - name: Deploy Application
         run: |
           ghaymah deploy \
