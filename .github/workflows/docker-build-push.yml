@@ -1,4 +1,4 @@
-name: Build & Push Docker Image
+name: Build, Push and Deploy
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build and Push Docker Image
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Repository
@@ -29,25 +29,31 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/ghaymah-api:${{ github.sha }}
 
   deploy-production:
-  needs: build
-  runs-on: self-hosted
-  environment:
-    name: production
+    name: Deploy to Production
+    needs: build
+    runs-on: self-hosted
 
-  steps:
-    - name: Pull latest image
-      run: |
-        docker pull ${{ secrets.DOCKER_USERNAME }}/ghaymah-api:${{ github.sha }}
+    environment:
+      name: production
 
-    - name: Stop old container
-      run: |
-        docker stop ghaymah-api || true
-        docker rm ghaymah-api || true
+    steps:
+      - name: Pull Latest Image
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/ghaymah-api:${{ github.sha }}
 
-    - name: Run new container
-      run: |
-        docker run -d \
-          --name ghaymah-api \
-          -p 80:80 \
-          --restart unless-stopped \
-          ${{ secrets.DOCKER_USERNAME }}/ghaymah-api:${{ github.sha }}
+      - name: Stop Existing Container
+        run: |
+          docker stop ghaymah-api || true
+          docker rm ghaymah-api || true
+
+      - name: Run New Container
+        run: |
+          docker run -d \
+            --name ghaymah-api \
+            --restart unless-stopped \
+            -p 8080:8080 \
+            ${{ secrets.DOCKER_USERNAME }}/ghaymah-api:${{ github.sha }}
+
+      - name: Verify Deployment
+        run: |
+          docker ps
