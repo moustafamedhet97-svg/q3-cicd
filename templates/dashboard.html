@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghaymah SRE Dashboard</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        body{
+            background:#f5f7fb;
+        }
+
+        .container{
+            width:900px;
+            margin:40px auto;
+        }
+
+        h1{
+            text-align:center;
+            margin-bottom:30px;
+            color:#2c3e50;
+        }
+
+        .cards{
+            display:flex;
+            justify-content:space-between;
+            gap:20px;
+        }
+
+        .card{
+            flex:1;
+            background:white;
+            border-radius:10px;
+            padding:25px;
+            text-align:center;
+            box-shadow:0 5px 15px rgba(0,0,0,.1);
+        }
+
+        .title{
+            color:#666;
+            font-size:18px;
+            margin-bottom:15px;
+        }
+
+        .value{
+            font-size:34px;
+            font-weight:bold;
+        }
+
+        .up{
+            color:green;
+        }
+
+        .down{
+            color:red;
+        }
+
+        .footer{
+            margin-top:35px;
+            text-align:center;
+            color:#777;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🚀 Ghaymah SRE Dashboard</h1>
+
+    <div class="cards">
+
+        <div class="card">
+            <div class="title">Status</div>
+            <div id="status" class="value">Loading...</div>
+        </div>
+
+        <div class="card">
+            <div class="title">Response Time</div>
+            <div id="response" class="value">0 ms</div>
+        </div>
+
+        <div class="card">
+            <div class="title">Requests</div>
+            <div id="requests" class="value">0</div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Last Update:
+        <span id="time">--</span>
+    </div>
+
+</div>
+
+<script>
+
+async function loadMetrics(){
+
+    try{
+
+        const response = await fetch('/metrics');
+
+        const data = await response.json();
+
+        const status=document.getElementById("status");
+
+        status.innerHTML=data.status;
+
+        status.className="value";
+
+        if(data.status==="UP")
+            status.classList.add("up");
+        else
+            status.classList.add("down");
+
+        document.getElementById("response").innerHTML=data.response_time_ms+" ms";
+
+        document.getElementById("requests").innerHTML=data.requests;
+
+        document.getElementById("time").innerHTML=
+            new Date().toLocaleTimeString();
+
+    }
+
+    catch(error){
+
+        document.getElementById("status").innerHTML="DOWN";
+
+        document.getElementById("status").className="value down";
+
+    }
+
+}
+
+loadMetrics();
+
+setInterval(loadMetrics,30000);
+
+</script>
+
+</body>
